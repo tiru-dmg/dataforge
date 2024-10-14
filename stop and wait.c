@@ -1,37 +1,69 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <unistd.h>  // for sleep function
-#include <time.h>    // for rand()
-#define TIMEOUT 1
-#define MAX_ATTEMPTS 3
-bool transmit_data(int data) {
-    sleep(rand() % 3);
-    if ((rand() % 100) < 95) {
-        printf("Data %d received\n", data);
-        return true;}
-    return false;}
-void send_data(int data_buffer[], int size) {
-	int i;
-    for ( i = 0; i < size; i++) {
-        int data = data_buffer[i];
-        printf("Transmitting data %d\n", data);       
-        int attempts = 0;
-        while (attempts < MAX_ATTEMPTS) {
-            bool success = transmit_data(data);
-            if (success) {
-                printf("ACK received for data %d\n", data);
-                printf("Transmitted data %d successfully\n", data);
-                break;
-            } else {
-                printf("NACK received for data %d, retrying transfer\n", data);
-                attempts++;
-                if (attempts == MAX_ATTEMPTS) {
-                    printf("Failed to transmit data %d after %d attempts\n", data, MAX_ATTEMPTS);}}}}}
+#include <unistd.h>  // for usleep
+#include <time.h>
+ 
+// Function to simulate sending a packet
+bool send_packet(int packet) {
+    usleep((rand() % 2 + 1) * 1000000);  // Random delay of 1 to 2 seconds
+    if ((rand() % 100) < 90) {
+        printf("Packet %d sent successfully.\n", packet);
+        return true;  // Packet sent successfully
+    }
+    return false;  // Packet sending failed
+}
+ 
+// Function to simulate receiving acknowledgment
+bool get_ack(int packet) {
+    usleep((rand() % 2 + 1) * 1000000);  // Random delay of 1 to 2 seconds
+    if ((rand() % 100) < 80) {
+        printf("ACK received for packet %d.\n", packet);
+        return true;  // Acknowledgment received
+    } else {
+        printf("NACK or Timeout for packet %d.\n", packet);
+        return false;  // No acknowledgment received
+    }
+}
+ 
 int main() {
-    srand(time(0));
-    int data[] = {1, 2, 3, 4};
-    int size = sizeof(data) / sizeof(data[0]);
-    send_data(data, size);
+    srand(time(NULL));  // Set seed for random number generation
+    int num_packets, i;
+ 
+    // Ask user for the number of packets
+    printf("Enter the number of packets to send: ");
+    scanf("%d", &num_packets);
+ 
+    // Create an array to hold the packet numbers
+    int *packets = (int *)malloc(num_packets * sizeof(int));
+ 
+    // Get packet numbers from the user
+    printf("Enter the packet numbers (integers):\n");
+    for (i = 0; i < num_packets; i++) {
+        printf("Packet %d: ", i + 1);
+        scanf("%d", &packets[i]);
+    }
+ 
+    // Send each packet and wait for acknowledgment
+    for (i = 0; i < num_packets; i++) {
+        bool ack_received = false;  // Acknowledgment not received yet
+        while (!ack_received) {
+            printf("Sending packet %d...\n", packets[i]);
+            bool send_success = send_packet(packets[i]);  // Try to send packet
+            if (send_success) {
+                ack_received = get_ack(packets[i]);  // Wait for ACK
+                if (!ack_received) {
+                    printf("Resending packet %d due to NACK or Timeout.\n", packets[i]);
+                }
+            } else {
+                printf("Packet %d sending failed, trying again...\n", packets[i]);
+            }
+        }
+    }
+ 
+    printf("All packets sent successfully using Stop-and-Wait ARQ.\n");
+ 
+    // Free the memory allocated for packets
+    free(packets);
     return 0;
 }
