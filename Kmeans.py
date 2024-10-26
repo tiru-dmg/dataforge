@@ -21,17 +21,21 @@ def k_means(data, k, max_iterations=100):
     return centroids, labels
 
 def plot_clusters(data, centroids, labels):
-    plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis', marker='o')
-    plt.scatter(centroids[:, 0], centroids[:, 1], c='red', marker='X', s=200)
+    plt.scatter(data[:, 0], data[:, 1], c=labels, cmap='viridis', marker='o', edgecolor='k')
+    plt.scatter(centroids[:, 0], centroids[:, 1], c='red', marker='X', s=200, label='Centroids')
     plt.title('K-means Clustering')
     plt.xlabel('Feature 1')
     plt.ylabel('Feature 2')
+    plt.legend()
+    plt.grid(True)
     plt.show()
 
-num_points_per_cluster = 50
-centers = [(2, 2), (8, 8), (5, 1)]
-spread = 0.5
-k = len(centers)
-data = generate_data(num_points_per_cluster, centers, spread)
-centroids, labels = k_means(data, k)
-plot_clusters(data, centroids, labels)
+if __name__ == "__main__":
+    num_points_per_cluster = 50
+    centers = [(2, 2), (8, 8), (5, 1)]
+    spread = 0.5
+    k = len(centers)
+
+    data = generate_data(num_points_per_cluster, centers, spread)
+    centroids, labels = k_means(data, k)
+    plot_clusters(data, centroids, labels)
