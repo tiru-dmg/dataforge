@@ -16,13 +16,11 @@ class Car {
     }
 
     @Override
-    public String toString() {
-        return "Car{" +
-               "carName='" + carName + '\'' +
-               ", carDescription='" + carDescription + '\'' +
-               ", carNo=" + carNo +
-               '}';
-    }
+   @Override
+public String toString() {
+    return String.format("Car{carName='%s', carDescription='%s', carNo=%d}", carName, carDescription, carNo);
+}
+
 
     public String getCarName() {
         return carName;
